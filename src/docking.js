@@ -1,86 +1,98 @@
-class Dock extends HTMLElement {
+class DockElement extends HTMLElement {
     constructor() {
         super();
-        // Create a shadow DOM
         const shadow = this.attachShadow({ mode: 'open' });
 
-        // Create a container for docked items
-        const dockContainer = document.createElement('div');
-        dockContainer.setAttribute('class', 'dock-container');
-
-        // Define styles for the dock
+        // Inject CSS styles
         const style = document.createElement('style');
         style.textContent = `
-            .dock-container {
-                position: fixed;
-                z-index: 9999; /* Ensure it's above other content */
-                padding: 10px;
-                background-color: #f3f3f3;
-                border: 1px solid #ccc;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            /* Basic styles for the dock element */
+            div {
+                border: 1px solid #000; 
+                padding: 10px; 
+                margin: 10px; 
+                background-color: #f9f9f9;
+                position: absolute; /* Set position to absolute for docking */
             }
 
-            .dock-topright { top: 0; right: 0; }
-            .dock-topleft { top: 0; left: 0; }
-            .dock-bottomright { bottom: 0; right: 0; }
-            .dock-bottomleft { bottom: 0; left: 0; }
+            /* Styles for different dock types */
+            .dock-bottom-right {
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .dock-bottom-left {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .dock-bottom-center {
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .dock-center-left {
+                top: 50%;
+                left: 10px;
+                transform: translateY(-50%);
+            }
+
+            .dock-center {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .dock-center-right {
+                top: 50%;
+                right: 10px;
+                transform: translateY(-50%);
+            }
+
+            .dock-top-left {
+                top: 10px;
+                left: 10px;
+            }
+
+            .dock-top-center {
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .dock-top-right {
+                top: 10px;
+                right: 10px;
+            }
         `;
-
-        // Append styles and container to shadow DOM
         shadow.appendChild(style);
-        shadow.appendChild(dockContainer);
-        this.dockContainer = dockContainer; // Reference to the container for later use
-    }
 
-    connectedCallback() {
-        this.updateDocking();
-        this.moveChildrenToDockContainer();
-    }
+        // Create a container for the element
+        const container = document.createElement('div');
 
-    static get observedAttributes() {
-        return ['id'];
-    }
+        // Get the docking ID and type
+        const dockingId = this.getAttribute('of');
+        const dockType = this.getAttribute('type');
 
-    attributeChangedCallback(name, oldValue, newValue) {
-        if (name === 'id') {
-            this.updateDocking();
+        // Set the class based on the type
+        if (dockType) {
+            container.classList.add(`dock-${dockType.replace(/ /g, '-')}`);
         }
-    }
 
-    updateDocking() {
-        const dockingPosition = this.getAttribute('id');
-        const dockContainer = this.dockContainer;
+        // Add content to the container
+        const content = document.createElement('span');
+        content.textContent = `Docking ID: ${dockingId} - Content: `;
+        container.appendChild(content);
 
-        // Remove any existing docking classes
-        dockContainer.classList.remove('dock-topright', 'dock-topleft', 'dock-bottomright', 'dock-bottomleft');
+        // Create a slot for the inner content
+        const slot = document.createElement('slot');
+        container.appendChild(slot);
 
-        // Apply the appropriate docking class
-        switch (dockingPosition) {
-            case 'topright':
-                dockContainer.classList.add('dock-topright');
-                break;
-            case 'topleft':
-                dockContainer.classList.add('dock-topleft');
-                break;
-            case 'bottomright':
-                dockContainer.classList.add('dock-bottomright');
-                break;
-            case 'bottomleft':
-                dockContainer.classList.add('dock-bottomleft');
-                break;
-            default:
-                console.warn(`Unknown docking position: ${dockingPosition}`);
-                break;
-        }
-    }
-
-    moveChildrenToDockContainer() {
-        // Move all child nodes to the dock container
-        while (this.firstChild) {
-            this.dockContainer.appendChild(this.firstChild);
-        }
+        // Append the container to the shadow DOM
+        shadow.appendChild(container);
     }
 }
 
-// Define the custom <dock> element
-customElements.define('dock', Dock);
+// Define the new element
+customElements.define('dock', DockElement);
