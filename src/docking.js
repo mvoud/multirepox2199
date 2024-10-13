@@ -14,7 +14,12 @@ class Dock extends HTMLElement {
             .dock-container {
                 position: fixed;
                 z-index: 9999; /* Ensure it's above other content */
+                padding: 10px;
+                background-color: #f3f3f3;
+                border: 1px solid #ccc;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             }
+
             .dock-topright { top: 0; right: 0; }
             .dock-topleft { top: 0; left: 0; }
             .dock-bottomright { bottom: 0; right: 0; }
@@ -77,5 +82,5 @@ class Dock extends HTMLElement {
     }
 }
 
-// Define the custom element
-customElements.define('dock-element', Dock);
+// Define the custom <dock> element
+customElements.define('dock', Dock);
